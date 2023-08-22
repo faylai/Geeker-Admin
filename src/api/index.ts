@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, AxiosError, AxiosRequestConfig, InternalAxiosRequestConfig, AxiosResponse } from "axios";
+import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig, AxiosResponse, CreateAxiosDefaults } from "axios";
 import { showFullScreenLoading, tryHideFullScreenLoading } from "@/config/serviceLoading";
 import { LOGIN_URL } from "@/config";
 import { ElMessage } from "element-plus";
@@ -23,7 +23,7 @@ const config = {
 
 class RequestHttp {
   service: AxiosInstance;
-  public constructor(config: AxiosRequestConfig) {
+  public constructor(config: CreateAxiosDefaults) {
     // instantiation
     this.service = axios.create(config);
 
@@ -106,4 +106,4 @@ class RequestHttp {
   }
 }
 
-export default new RequestHttp(config);
+export default new RequestHttp(config as CreateAxiosDefaults);

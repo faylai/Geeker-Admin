@@ -9,13 +9,24 @@
     <div id="Geeker">
       <el-button type="primary" @click.prevent.stop="guide"> 打开引导页 🤹‍♂️ </el-button>
     </div>
+    <div style="display: flex; justify-content: center; width: 500px">
+      <div style="flex: 1; padding: 0 10px">
+        <p>xTile 瓦片加载select</p>
+        <XTile :throttle="22"></XTile>
+      </div>
+      <div style="flex: 1; padding: 0 10px">
+        <p>xTile 瓦片加载tree</p>
+        <XTree></XTree>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts" name="guide">
 import Driver from "driver.js";
 import "driver.js/dist/driver.min.css";
-
+import XTile from "@/components/XTile/index.vue";
+import XTree from "@/components/XTree/index.vue";
 const guide = () => {
   const driver: Driver = new Driver({
     allowClose: false,
