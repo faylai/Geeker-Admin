@@ -3,13 +3,13 @@ const generateRandomId = () => Math.random().toString(36).substring(2, 9);
 const generateRandomName = function (level: number, index: number) {
   return `node ${level}-${index}`;
 };
-const treeLevel: number = 4; // 树的层级
+const treeLevel: number = 3; // 树的层级
 const mockTree = (level: number, parentId: string | null): NodeType[] => {
   if (level <= 0) {
     return [];
   }
 
-  const numChildren = Math.floor(Math.random() * 100) + 1;
+  const numChildren = 100;
   const children: NodeType[] = [];
 
   for (let i = 0; i < numChildren; i++) {
@@ -36,7 +36,7 @@ export default function generateMockData() {
   for (let i = 0; i < 10; i++) {
     const nodeId = generateRandomId();
     const nodeName = generateRandomName(1, i + 1);
-    const expand = i < 2;
+    const expand = false;
     const rootNode: NodeType = {
       [node_symbol]: true,
       nodeId,

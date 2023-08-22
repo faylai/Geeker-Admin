@@ -1,7 +1,7 @@
 import type { NodeType } from "./treeUtils";
 import { LinkedList } from "./LinkedList";
 import { downNodeDeepByDeep } from "./treeUtils";
-
+import { throttle } from "lodash";
 export type TileViewConfig = {
   startIndex: number;
   endIndex: number;
@@ -56,18 +56,60 @@ export class TileTreeHelper {
   linkedList: LinkedList<NodeTypeExtra> = new LinkedList<NodeTypeExtra>();
   viewHeight: number = 200;
   tileHeight: number = 30;
+  $scrollEl: HTMLElement;
+  $tileContainer: HTMLElement;
   listTileHelper: ListTileHelper = new ListTileHelper(0, 0, 0);
   lastTileViewConfig: TileViewConfig = { startIndex: 0, endIndex: 0 };
   lastLinkedListVisibleRange: NodeTypeExtra[] = new Array<NodeTypeExtra>();
+  onScrollElScrollThrottler: () => void = function () {};
+  onTileContainerClickBinder: (event: MouseEvent) => void = function () {};
+  tileClass: string = "";
+  _isDestroyed: boolean = false;
 
-  constructor(treeData: NodeType[], viewHeight: number, tileHeight: number) {
-    this.viewHeight = viewHeight;
-    this.tileHeight = tileHeight;
-    this.initLinkedList(treeData);
+  constructor(args: {
+    treeData: NodeType[];
+    tileHeight: number;
+    tileClass?: string;
+    $scrollEl: HTMLElement;
+    $tileContainer: HTMLElement;
+  }) {
+    this.viewHeight = args.$tileContainer.offsetHeight;
+    this.tileHeight = args.tileHeight;
+    this.$scrollEl = args.$scrollEl;
+    this.$tileContainer = args.$tileContainer;
+    this.tileClass = args.tileClass || "";
+    this.initLinkedList(args.treeData);
+    this.onVisibleTileSizeChange();
+    this.initDomEvents();
+    this.render();
   }
 
-  private initListTileHelper(size: number) {
-    this.listTileHelper = new ListTileHelper(size, this.viewHeight, this.tileHeight);
+  private onVisibleTileSizeChange() {
+    this.$tileContainer.style.height = [this.linkedList.size() * this.tileHeight, "px"].join("");
+    this.listTileHelper = new ListTileHelper(this.linkedList.size(), this.viewHeight, this.tileHeight);
+  }
+
+  private onTileContainerClick(event: MouseEvent) {
+    if (event.target) {
+      let block = event.target as HTMLDivElement;
+      if (block.hasAttribute("data-node-index")) {
+        let index = Number(block.getAttribute("data-node-index"));
+        this.toggleTileNodeExpand(index);
+        this.onVisibleTileSizeChange();
+        this.render();
+      }
+    }
+  }
+
+  private onScrollElScroll() {
+    this.render();
+  }
+
+  private initDomEvents() {
+    this.onTileContainerClickBinder = this.onTileContainerClick.bind(this);
+    this.$tileContainer.addEventListener("click", this.onTileContainerClickBinder);
+    this.onScrollElScrollThrottler = throttle(this.onScrollElScroll.bind(this), 200);
+    this.$scrollEl.addEventListener("scroll", this.onScrollElScrollThrottler);
   }
 
   private initLinkedList(treeData: NodeType[]) {
@@ -78,7 +120,36 @@ export class TileTreeHelper {
       }
       return node.expand;
     });
-    this.initListTileHelper(this.linkedList.size());
+  }
+
+  createTileDom(node: NodeTypeExtra): HTMLElement {
+    let tileDom: HTMLDivElement = document.createElement("div") as HTMLDivElement;
+    let expandible = node.raw.children && node.raw.children.length > 0;
+    let arrow = node.raw.expand === false && expandible ? "&gt" : "O";
+    let directChildrenSize = expandible ? node.raw.children?.length : 0;
+    tileDom.className = this.tileClass;
+    tileDom.innerHTML = `${arrow}--${node.raw.nodeName} (${directChildrenSize})`;
+    return tileDom;
+  }
+
+  render() {
+    console.time("渲染大量节点");
+    let fragment = document.createDocumentFragment();
+    const { startIndex, tiles } = this.getTiles(this.$scrollEl.scrollTop);
+    for (let index = 0; index < tiles.length; index++) {
+      const node = tiles[index];
+      const element: HTMLElement = this.createTileDom(node);
+      let tileViewIndex = startIndex + index;
+      element.style.top = [tileViewIndex * this.tileHeight, "px"].join("");
+      element.style.paddingLeft = [node.level * 20, "px"].join("");
+      element.style.height = [this.tileHeight, "px"].join("");
+      element.style.position = "absolute";
+      element.setAttribute("data-node-index", String(index));
+      fragment.appendChild(element);
+    }
+    this.$tileContainer.innerHTML = "";
+    this.$tileContainer.appendChild(fragment);
+    console.timeEnd("渲染大量节点");
   }
 
   getTiles(scrollTop: number): { startIndex: number; tiles: NodeTypeExtra[] } {
@@ -123,6 +194,10 @@ export class TileTreeHelper {
     } else {
       // do nothing with no child node
     }
-    this.initListTileHelper(this.linkedList.size());
+  }
+  destroyed() {
+    this._isDestroyed = true;
+    this.$tileContainer.removeEventListener("click", this.onTileContainerClickBinder);
+    this.$scrollEl.removeEventListener("scroll", this.onScrollElScrollThrottler);
   }
 }

@@ -160,8 +160,7 @@ export class LinkedList<T extends object> {
         currentIndex = startIndex;
       }
     }
-    let backupNode = currentNode;
-    let backupCurrentIndex = currentIndex;
+
     while (currentNode) {
       if (currentIndex >= startIndex && currentIndex <= endIndex) {
         result.push(currentNode.data);
@@ -171,11 +170,6 @@ export class LinkedList<T extends object> {
       }
       currentNode = currentNode.next;
       currentIndex++;
-    }
-
-    if (result.length === 0) {
-      console.log(backupNode, backupCurrentIndex);
-      debugger;
     }
 
     return result;
