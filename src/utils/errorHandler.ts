@@ -22,6 +22,8 @@ const errorHandler = (error: any) => {
     type: "error",
     duration: 3000
   });
+
+  console.error(error);
 };
 
 export default errorHandler;

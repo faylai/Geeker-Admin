@@ -20,7 +20,14 @@ onMounted(() => {
       tileHeight: height,
       tileClass: "tile",
       $scrollEl: rootRef.value,
-      $tileContainer: tileWrapper.value
+      $tileContainer: tileWrapper.value,
+      tileDomCreator: function (node) {
+        let div = document.createElement("div");
+        div.innerHTML = `${node.raw.nodeName}--xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx--(${
+          node.raw.children ? node.raw.children.length : 0
+        })`;
+        return div;
+      }
     });
   }
 });

@@ -6,7 +6,7 @@ export type TileViewConfig = {
   startIndex: number;
   endIndex: number;
 };
-const tileExtraSize = 3; // 前后多余显示元素个数
+const tileExtraSize = 3; // 前后多余显示tile的个数
 export class ListTileHelper {
   dataSize: number;
   blockHeight: number;
@@ -52,6 +52,23 @@ function isNodeVisible(node: NodeType, parent: NodeType | null): boolean {
   return false;
 }
 
+function createELByTags(tags: string): HTMLElement {
+  let div: HTMLElement = document.createElement("div");
+  div.innerHTML = tags;
+  return div.firstElementChild as HTMLElement;
+}
+
+function findAttributeToUp(node: HTMLElement, attributeName: string, stopEl?: HTMLElement): string | null {
+  let currentNode: HTMLElement | null = node;
+  while (currentNode !== null && currentNode !== (stopEl || document.body)) {
+    if (currentNode.hasAttribute(attributeName)) {
+      return currentNode.getAttribute(attributeName);
+    }
+    currentNode = currentNode.parentElement;
+  }
+  return null;
+}
+
 export class TileTreeHelper {
   linkedList: LinkedList<NodeTypeExtra> = new LinkedList<NodeTypeExtra>();
   viewHeight: number = 200;
@@ -61,8 +78,10 @@ export class TileTreeHelper {
   listTileHelper: ListTileHelper = new ListTileHelper(0, 0, 0);
   lastTileViewConfig: TileViewConfig = { startIndex: 0, endIndex: 0 };
   lastLinkedListVisibleRange: NodeTypeExtra[] = new Array<NodeTypeExtra>();
+  lastScrollTop: number = 0;
   onScrollElScrollThrottler: () => void = function () {};
   onTileContainerClickBinder: (event: MouseEvent) => void = function () {};
+  tileDomCreator: ((node: NodeTypeExtra) => HTMLElement) | undefined = undefined;
   tileClass: string = "";
   _isDestroyed: boolean = false;
 
@@ -72,12 +91,14 @@ export class TileTreeHelper {
     tileClass?: string;
     $scrollEl: HTMLElement;
     $tileContainer: HTMLElement;
+    tileDomCreator?: (node: NodeTypeExtra) => HTMLElement;
   }) {
     this.viewHeight = args.$tileContainer.offsetHeight;
     this.tileHeight = args.tileHeight;
     this.$scrollEl = args.$scrollEl;
     this.$tileContainer = args.$tileContainer;
     this.tileClass = args.tileClass || "";
+    this.tileDomCreator = args.tileDomCreator;
     this.initLinkedList(args.treeData);
     this.onVisibleTileSizeChange();
     this.initDomEvents();
@@ -92,8 +113,9 @@ export class TileTreeHelper {
   private onTileContainerClick(event: MouseEvent) {
     if (event.target) {
       let block = event.target as HTMLDivElement;
-      if (block.hasAttribute("data-node-index")) {
-        let index = Number(block.getAttribute("data-node-index"));
+      let nodeDataIndexValue = findAttributeToUp(block, "data-node-index", this.$tileContainer);
+      if (nodeDataIndexValue !== null) {
+        let index = Number(nodeDataIndexValue);
         this.toggleTileNodeExpand(index);
         this.onVisibleTileSizeChange();
         this.render();
@@ -102,9 +124,16 @@ export class TileTreeHelper {
   }
 
   private onScrollElScroll() {
-    this.render();
+    let lastScrollTop = this.lastScrollTop;
+    if (this.$scrollEl.scrollTop !== lastScrollTop) {
+      this.render();
+      this.lastScrollTop = this.$scrollEl.scrollTop;
+    }
   }
 
+  /**
+   * 绑定dom 事件，只能调用一次，请不要重复调用
+   */
   private initDomEvents() {
     this.onTileContainerClickBinder = this.onTileContainerClick.bind(this);
     this.$tileContainer.addEventListener("click", this.onTileContainerClickBinder);
@@ -123,12 +152,19 @@ export class TileTreeHelper {
   }
 
   createTileDom(node: NodeTypeExtra): HTMLElement {
-    let tileDom: HTMLDivElement = document.createElement("div") as HTMLDivElement;
+    let tileDom: HTMLElement = document.createElement("div") as HTMLElement;
     let expandible = node.raw.children && node.raw.children.length > 0;
     let arrow = node.raw.expand === false && expandible ? "&gt" : "O";
     let directChildrenSize = expandible ? node.raw.children?.length : 0;
-    tileDom.className = this.tileClass;
-    tileDom.innerHTML = `${arrow}--${node.raw.nodeName} (${directChildrenSize})`;
+    tileDom.className = [tileDom.className, this.tileClass].join(" ");
+    tileDom.appendChild(createELByTags(`<div style="width:24px;text-align:right">${arrow}</div>`));
+    let nodeNameDom: HTMLElement = createELByTags(`<div style="flex:1"></div>`);
+    tileDom.appendChild(nodeNameDom);
+    if (this.tileDomCreator !== undefined) {
+      nodeNameDom.appendChild(this.tileDomCreator(node));
+    } else {
+      nodeNameDom.appendChild(createELByTags(`<div> --${node.raw.nodeName} (${directChildrenSize})</div>`));
+    }
     return tileDom;
   }
 
