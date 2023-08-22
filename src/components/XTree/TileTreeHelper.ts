@@ -157,7 +157,7 @@ export class TileTreeHelper {
     let arrow = node.raw.expand === false && expandible ? "&gt" : "O";
     let directChildrenSize = expandible ? node.raw.children?.length : 0;
     tileDom.className = [tileDom.className, this.tileClass].join(" ");
-    tileDom.appendChild(createELByTags(`<div style="width:24px;text-align:right">${arrow}</div>`));
+    tileDom.appendChild(createELByTags(`<div style="width:24px;text-align:right;">${arrow}&nbsp;</div>`));
     let nodeNameDom: HTMLElement = createELByTags(`<div style="flex:1"></div>`);
     tileDom.appendChild(nodeNameDom);
     if (this.tileDomCreator !== undefined) {

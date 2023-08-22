@@ -38,22 +38,19 @@ onUnmounted(() => {
 </script>
 <style lang="scss">
 .x-tree {
-  position: relative;
   min-width: 160px;
   height: 400px;
   overflow: auto;
   border: 1px solid grey;
   .tile-wrapper {
+    position: relative;
     height: 400px;
   }
   .tile {
-    position: absolute;
-    right: 0;
-    left: 0;
     box-sizing: border-box;
     display: flex;
     align-items: center; /* 垂直居中 */
-    height: 36px;
+    min-width: 100%;
     padding: 0 8px;
     word-break: keep-all;
     white-space: nowrap;
