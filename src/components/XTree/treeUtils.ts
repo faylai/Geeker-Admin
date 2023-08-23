@@ -10,6 +10,17 @@ export type NodeType = {
   [key: string]: any;
 };
 
+export type HTMLElementWithComponent = HTMLElement & {
+  unmount?: () => void;
+};
+
+export type NodeTypeExtra = {
+  raw: NodeType;
+  level: number;
+  parent: NodeType | null;
+  checkState: 0 | 1 | 2;
+};
+
 export function createProxy<T extends NodeType | NodeType[] = NodeType | NodeType[]>(obj: T): T {
   let handler = {
     get(target: any, key: PropertyKey, receiver: any) {

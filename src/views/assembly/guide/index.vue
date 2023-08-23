@@ -16,7 +16,14 @@
       </div>
       <div style="flex: 1; padding: 0 10px">
         <p>xTile 瓦片加载tree</p>
-        <XTree></XTree>
+        <XTree>
+          <template #default="node">
+            <div>
+              <a href=":;" @click="onSpanClick">{{ node.raw.nodeName }}</a>
+              <span>来自vue 的模板</span>
+            </div>
+          </template>
+        </XTree>
       </div>
     </div>
   </div>
@@ -38,6 +45,11 @@ const guide = () => {
   driver.defineSteps(steps);
   driver.start();
 };
+function onSpanClick(event: MouseEvent) {
+  event.preventDefault();
+  event.stopPropagation();
+  console.log("span clicked");
+}
 
 const steps = [
   {

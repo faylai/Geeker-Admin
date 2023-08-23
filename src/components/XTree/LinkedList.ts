@@ -143,8 +143,8 @@ export class LinkedList<T extends object> {
     const result: T[] = [];
     let currentNode = this.head;
     let currentIndex = 0;
-    console.log("lastRangeInfo", lastRangeInfo);
-    console.log("thisRangeInfo", { startIndex, endIndex });
+    //console.log("lastRangeInfo", lastRangeInfo);
+    //console.log("thisRangeInfo", { startIndex, endIndex });
     if (lastRangeInfo !== undefined) {
       if (startIndex === lastRangeInfo.startIndex) {
         let found = this.find(lastRangeInfo.startNode);

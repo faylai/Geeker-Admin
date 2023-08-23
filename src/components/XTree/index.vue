@@ -5,12 +5,15 @@
 </template>
 
 <script lang="ts" name="XTile" setup>
-import { onMounted, onUnmounted, ref } from "vue";
+import { onMounted, onUnmounted, ref, useSlots, getCurrentInstance } from "vue";
 import { TileTreeHelper } from "./TileTreeHelper";
+import vDom2Dom from "./adaptor/vue3/index";
 import mock from "./mock";
 let tileTreeHelper: TileTreeHelper | undefined = undefined;
 let rootRef = ref<HTMLDivElement>();
 let tileWrapper = ref<HTMLDivElement>();
+let slots = useSlots();
+let instance = getCurrentInstance();
 onMounted(() => {
   const height: number = 36; // 节点的高度
   const mockData = mock();
@@ -22,11 +25,13 @@ onMounted(() => {
       $scrollEl: rootRef.value,
       $tileContainer: tileWrapper.value,
       tileDomCreator: function (node) {
-        let div = document.createElement("div");
-        div.innerHTML = `${node.raw.nodeName}--xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx--(${
-          node.raw.children ? node.raw.children.length : 0
-        })`;
-        return div;
+        if (slots.default) {
+          return vDom2Dom(node, slots.default, instance?.appContext);
+        } else {
+          let div = document.createElement("div");
+          div.innerHTML = `${node.raw.nodeName}-(${node.raw.children ? node.raw.children.length : 0})`;
+          return div;
+        }
       }
     });
   }
