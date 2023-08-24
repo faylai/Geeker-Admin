@@ -1,5 +1,6 @@
 export const node_symbol: unique symbol = Symbol("node_symbol");
 import { isObject } from "./common";
+
 export type NodeType = {
   [node_symbol]: boolean;
   nodeId: string;

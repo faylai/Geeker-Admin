@@ -175,9 +175,9 @@ export class TileTreeHelper {
    */
   createTileDom(node: NodeTypeExtra): HTMLElement {
     let tileDom: HTMLElement = document.createElement("div") as HTMLElement;
-    let expandible = node.raw.children && node.raw.children.length > 0;
-    let arrow = node.raw.expand === false && expandible ? "&gt" : "O";
-    let directChildrenSize = expandible ? node.raw.children?.length : 0;
+    let expandable = node.raw.children && node.raw.children.length > 0;
+    let arrow = node.raw.expand === false && expandable ? "&gt" : "O";
+    let directChildrenSize = expandable ? node.raw.children?.length : 0;
     tileDom.className = [tileDom.className, this.tileClass].join(" ");
     tileDom.appendChild(createELByTags(`<div style="width:24px;text-align:right;">${arrow}&nbsp;</div>`));
     let nodeNameDom: HTMLElement = createELByTags(`<div style="flex:1"></div>`);
@@ -198,7 +198,7 @@ export class TileTreeHelper {
   render() {
     console.time("渲染大量节点");
     // 树节点创建新的之前备份下需要销毁的节点
-    let outerFrameDoms = this.outerFrameDoms;
+    let outerFrameDomArray = this.outerFrameDoms;
     this.outerFrameDoms = [];
     // 利用 fragment 进行批量插入节约时间
     let fragment = document.createDocumentFragment();
@@ -216,7 +216,7 @@ export class TileTreeHelper {
     }
     this.$tileContainer.innerHTML = "";
     // 如果是框架的slot 渲染的需要主动调用 unmount 的方法
-    outerFrameDoms.forEach(dom => {
+    outerFrameDomArray.forEach(dom => {
       dom.unmount!();
     });
     this.$tileContainer.appendChild(fragment);

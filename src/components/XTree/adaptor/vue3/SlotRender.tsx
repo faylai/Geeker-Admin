@@ -9,7 +9,7 @@ export default defineComponent({
       if (slots.default) {
         return slots.default()[0];
       } else {
-        <div></div>;
+        return <div></div>;
       }
     };
   }
