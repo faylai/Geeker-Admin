@@ -29,7 +29,10 @@ export const useTabsStore = defineStore({
           router.push(nextTab.path);
         });
       }
-      this.tabsMenuList = tabsMenuList.filter(item => item.path !== tabPath);
+      let foundTab = tabsMenuList.find(item => item.path === tabPath);
+      if (foundTab !== undefined) {
+        this.tabsMenuList.splice(1, this.tabsMenuList.indexOf(foundTab));
+      }
     },
     // Close Tabs On Side
     async closeTabsOnSide(path: string, type: "left" | "right") {

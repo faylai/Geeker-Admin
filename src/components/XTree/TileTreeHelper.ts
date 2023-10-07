@@ -1,7 +1,12 @@
-import type { NodeType, NodeTypeExtra, HTMLElementWithComponent } from "./treeUtils";
+import type { NodeType, NodeTypeExtra } from "./treeUtils";
 import { LinkedList } from "./LinkedList";
 import { downNodeDeepByDeep } from "./treeUtils";
 import { throttle } from "lodash";
+
+export type HTMLElementWithUnmount = {
+  unmount: () => void;
+} & HTMLElement;
+
 export type TileViewConfig = {
   startIndex: number;
   endIndex: number;
@@ -89,19 +94,20 @@ export class TileTreeHelper {
   //树节点点击时候的处理方法
   onTileContainerClickBinder: (event: MouseEvent) => void = function () {};
   //自定义渲染树节点的方法
-  tileDomCreator: ((node: NodeTypeExtra) => HTMLElementWithComponent) | undefined = undefined;
+  tileDomCreator: ((node: NodeTypeExtra) => HTMLElementWithUnmount) | undefined = undefined;
   // 树节点额外的样式
   tileClass: string = "";
   _isDestroyed: boolean = false;
   //外部web 相应框架创建的dom 收集器，用来销毁事件的绑定
-  outerFrameDoms: HTMLElementWithComponent[] = [];
+  outerFrameDoms: HTMLElementWithUnmount[] = [];
+
   constructor(args: {
     treeData: NodeType[];
     tileHeight: number;
     tileClass?: string;
     $scrollEl: HTMLElement;
     $tileContainer: HTMLElement;
-    tileDomCreator?: (node: NodeTypeExtra) => HTMLElementWithComponent;
+    tileDomCreator?: (node: NodeTypeExtra) => HTMLElementWithUnmount;
   }) {
     this.viewHeight = args.$tileContainer.offsetHeight;
     this.tileHeight = args.tileHeight;
@@ -176,7 +182,7 @@ export class TileTreeHelper {
   createTileDom(node: NodeTypeExtra): HTMLElement {
     let tileDom: HTMLElement = document.createElement("div") as HTMLElement;
     let expandable = node.raw.children && node.raw.children.length > 0;
-    let arrow = node.raw.expand === false && expandable ? "&gt" : "O";
+    let arrow = !node.raw.expand && expandable ? "&gt" : "O";
     let directChildrenSize = expandable ? node.raw.children?.length : 0;
     tileDom.className = [tileDom.className, this.tileClass].join(" ");
     tileDom.appendChild(createELByTags(`<div style="width:24px;text-align:right;">${arrow}&nbsp;</div>`));
@@ -216,11 +222,15 @@ export class TileTreeHelper {
     }
     this.$tileContainer.innerHTML = "";
     // 如果是框架的slot 渲染的需要主动调用 unmount 的方法
-    outerFrameDomArray.forEach(dom => {
-      dom.unmount!();
-    });
+    this.destroyTreeNode(outerFrameDomArray);
     this.$tileContainer.appendChild(fragment);
     console.timeEnd("渲染大量节点");
+  }
+
+  private destroyTreeNode(outerFrameDoms: HTMLElementWithUnmount[]) {
+    outerFrameDoms.forEach(dom => {
+      dom.unmount!();
+    });
   }
 
   /**
@@ -279,9 +289,11 @@ export class TileTreeHelper {
       // do nothing with no child node
     }
   }
+
   destroyed() {
     this._isDestroyed = true;
     this.$tileContainer.removeEventListener("click", this.onTileContainerClickBinder);
     this.$scrollEl.removeEventListener("scroll", this.onScrollElScrollThrottler);
+    this.destroyTreeNode(this.outerFrameDoms);
   }
 }

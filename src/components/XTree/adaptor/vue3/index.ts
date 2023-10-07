@@ -21,6 +21,7 @@ export default function vDom2Dom(
   render(vNode, container);
 
   function unmount() {
+    //console.log("destroy node");
     render(null, container);
   }
 
