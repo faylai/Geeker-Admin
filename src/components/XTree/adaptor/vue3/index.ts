@@ -1,12 +1,12 @@
 import { AppContext, createVNode, render } from "vue";
 import SlotComponent from "./SlotRender";
-import { HTMLElementWithComponent } from "../../treeUtils";
+import { HTMLElementWithUnmount } from "../../treeUtils";
 
 export default function vDom2Dom(
   node: object,
   slotFunction: (...arg: any[]) => any,
   appContext: AppContext | null = null
-): HTMLElementWithComponent {
+): HTMLElementWithUnmount {
   const vNode = createVNode(
     SlotComponent,
     {},
@@ -24,8 +24,8 @@ export default function vDom2Dom(
     //console.log("destroy node");
     render(null, container);
   }
-
-  let ret: HTMLElementWithComponent = container.firstElementChild as HTMLElementWithComponent;
-  ret.unmount = unmount;
-  return ret;
+  return {
+    el: container.firstElementChild as HTMLElement,
+    unmount
+  };
 }

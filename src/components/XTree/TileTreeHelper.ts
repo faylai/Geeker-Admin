@@ -3,9 +3,7 @@ import { LinkedList } from "./LinkedList";
 import { downNodeDeepByDeep } from "./treeUtils";
 import { throttle } from "lodash";
 
-export type HTMLElementWithUnmount = {
-  unmount: () => void;
-} & HTMLElement;
+import type { HTMLElementWithUnmount } from "./treeUtils";
 
 export type TileViewConfig = {
   startIndex: number;
@@ -102,12 +100,12 @@ export class TileTreeHelper {
   outerFrameDoms: HTMLElementWithUnmount[] = [];
 
   constructor(args: {
+    tileClass: string;
+    tileDomCreator: (node: NodeTypeExtra) => HTMLElementWithUnmount;
+    $tileContainer: HTMLElement;
     treeData: NodeType[];
     tileHeight: number;
-    tileClass?: string;
     $scrollEl: HTMLElement;
-    $tileContainer: HTMLElement;
-    tileDomCreator?: (node: NodeTypeExtra) => HTMLElementWithUnmount;
   }) {
     this.viewHeight = args.$tileContainer.offsetHeight;
     this.tileHeight = args.tileHeight;
@@ -191,7 +189,7 @@ export class TileTreeHelper {
     if (this.tileDomCreator !== undefined) {
       let outerFrameDom = this.tileDomCreator(node);
       this.outerFrameDoms.push(outerFrameDom);
-      nodeNameDom.appendChild(outerFrameDom);
+      nodeNameDom.appendChild(outerFrameDom.el);
     } else {
       nodeNameDom.appendChild(createELByTags(`<div> --${node.raw.nodeName} (${directChildrenSize})</div>`));
     }

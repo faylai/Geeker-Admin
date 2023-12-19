@@ -11,7 +11,8 @@ export type NodeType = {
   [key: string]: any;
 };
 
-export type HTMLElementWithComponent = HTMLElement & {
+export type HTMLElementWithUnmount = {
+  el: HTMLElement;
   unmount?: () => void;
 };
 

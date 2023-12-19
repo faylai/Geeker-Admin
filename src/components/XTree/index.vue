@@ -30,7 +30,10 @@ onMounted(() => {
         } else {
           let div = document.createElement("div");
           div.innerHTML = `${node.raw.nodeName}-(${node.raw.children ? node.raw.children.length : 0})`;
-          return div;
+          return {
+            el: div,
+            unmount: () => {}
+          };
         }
       }
     });
