@@ -33,7 +33,7 @@ const mockTree = (level: number, parentId: string | null): NodeType[] => {
 
 export default function generateMockData() {
   const root: NodeType[] = [];
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 500; i++) {
     const nodeId = generateRandomId();
     const nodeName = generateRandomName(1, i + 1);
     const expand = false;

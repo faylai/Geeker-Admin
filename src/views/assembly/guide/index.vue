@@ -1,7 +1,7 @@
 <template>
   <div class="card content-box">
     <span class="text"> 虚拟树 🍓🍇🍈🍉</span>
-    <el-alert title="百万数据如丝滑般的显示" type="warning" :closable="false" />
+    <el-alert title="500万数据如丝滑般的显示，打开dev tools 看看内存多大！" type="warning" :closable="false" />
     <div id="Geeker">
       <el-button type="primary" @click.prevent.stop="guide"> 打开引导页 🤹‍♂️ </el-button>
     </div>
