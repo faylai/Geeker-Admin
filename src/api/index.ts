@@ -1,5 +1,6 @@
 import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig, AxiosResponse, CreateAxiosDefaults } from "axios";
 import { showFullScreenLoading, tryHideFullScreenLoading } from "@/config/serviceLoading";
+// eslint-disable-next-line
 import { LOGIN_URL } from "@/config";
 import { ElMessage } from "element-plus";
 import { ResultData } from "@/api/interface";
@@ -59,7 +60,7 @@ class RequestHttp {
         // 登陆失效
         if (data.code == ResultEnum.OVERDUE) {
           userStore.setToken("");
-          router.replace(LOGIN_URL);
+          // router.replace(LOGIN_URL);
           ElMessage.error(data.msg);
           return Promise.reject(data);
         }

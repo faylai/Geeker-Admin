@@ -30,9 +30,13 @@
     <!-- 表格主体 -->
     <el-table
       ref="tableRef"
+      style="
+
+--el-text-color-placeholder: red"
       v-bind="$attrs"
       :data="data ?? tableData"
       :border="border"
+      :header-row-style="headerRowStyle"
       :row-key="rowKey"
       @selection-change="selectionChange"
     >
@@ -43,16 +47,17 @@
         <el-table-column
           v-if="item.type && ['selection', 'index', 'expand'].includes(item.type)"
           v-bind="item"
+          :sortable="true"
           :align="item.align ?? 'center'"
           :reserve-selection="item.type == 'selection'"
         >
           <template v-if="item.type == 'expand'" #default="scope">
-            <component :is="item.render" v-bind="scope" v-if="item.render"> </component>
+            <component :is="item.render" v-bind="scope" v-if="item.render"></component>
             <slot v-else :name="item.type" v-bind="scope"></slot>
           </template>
         </el-table-column>
         <!-- other -->
-        <TableColumn v-if="!item.type && item.prop && item.isShow" :column="item">
+        <TableColumn v-if="!item.type && item.prop && item.isShow" :column="item" :sortable="true">
           <template v-for="slot in Object.keys($slots)" #[slot]="scope">
             <slot :name="slot" v-bind="scope"></slot>
           </template>
@@ -60,7 +65,7 @@
       </template>
       <!-- 插入表格最后一行之后的插槽 -->
       <template #append>
-        <slot name="append"> </slot>
+        <slot name="append"></slot>
       </template>
       <!-- 无数据 -->
       <template #empty>
@@ -131,6 +136,14 @@ const props = withDefaults(defineProps<ProTableProps>(), {
 
 // 是否显示搜索模块
 const isShowSearch = ref(true);
+
+const headerRowStyle = ref({
+  background: "#fafafa",
+  color: "#606266",
+  fontWeight: "bold",
+  height: "90px",
+  fontSize: "29px"
+});
 
 // 表格 DOM 元素
 const tableRef = ref<InstanceType<typeof ElTable>>();
