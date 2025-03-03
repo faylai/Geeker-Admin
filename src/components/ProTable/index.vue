@@ -30,9 +30,7 @@
     <!-- 表格主体 -->
     <el-table
       ref="tableRef"
-      style="
-
---el-text-color-placeholder: red"
+      style="--el-text-color-placeholder: red"
       v-bind="$attrs"
       :data="data ?? tableData"
       :border="border"
