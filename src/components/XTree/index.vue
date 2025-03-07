@@ -9,6 +9,7 @@ import { onMounted, onUnmounted, ref, useSlots, getCurrentInstance } from "vue";
 import { TileTreeHelper } from "./TileTreeHelper";
 import vDom2Dom from "./adaptor/vue3/index";
 import mock from "./mock";
+
 let tileTreeHelper: TileTreeHelper | undefined = undefined;
 let rootRef = ref<HTMLDivElement>();
 let tileWrapper = ref<HTMLDivElement>();
@@ -42,6 +43,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   tileTreeHelper?.destroyed();
+  tileTreeHelper = undefined;
 });
 </script>
 <style lang="scss">
