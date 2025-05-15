@@ -178,22 +178,33 @@ export class TileTreeHelper {
    * @returns dom
    */
   createTileDom(node: NodeTypeExtra): HTMLElement {
-    let tileDom: HTMLElement = document.createElement("div") as HTMLElement;
     let expandable = node.raw.children && node.raw.children.length > 0;
     let arrow = !node.raw.expand && expandable ? "&gt" : "O";
     let directChildrenSize = expandable ? node.raw.children?.length : 0;
-    tileDom.className = [tileDom.className, this.tileClass].join(" ");
-    tileDom.appendChild(createELByTags(`<div style="width:24px;text-align:right;">${arrow}&nbsp;</div>`));
-    let nodeNameDom: HTMLElement = createELByTags(`<div style="flex:1"></div>`);
-    tileDom.appendChild(nodeNameDom);
+    const className = [this.tileClass].join(" ");
+    const replace_key = "data-replace-dom";
+    const ret = createELByTags(`
+       <div class="${className}">
+          <div style="width:24px;text-align:right;">${arrow}&nbsp;</div>
+          <div style="flex:1" ${replace_key}>
+             <div>${node.raw.nodeName} (${directChildrenSize})</div>
+          </div>
+       </div>    
+    `);
+
     if (this.tileDomCreator !== undefined) {
+      // 从外部框架创建dom
       let outerFrameDom = this.tileDomCreator(node);
+      //收集用于vue react 框架的垃圾回收
       this.outerFrameDoms.push(outerFrameDom);
-      nodeNameDom.appendChild(outerFrameDom.el);
-    } else {
-      nodeNameDom.appendChild(createELByTags(`<div> --${node.raw.nodeName} (${directChildrenSize})</div>`));
+      const replaceDom = ret.querySelector(`[${replace_key}]`);
+      if (replaceDom) {
+        replaceDom.innerHTML = "";
+        replaceDom.appendChild(outerFrameDom.el);
+      }
     }
-    return tileDom;
+
+    return ret;
   }
 
   /**

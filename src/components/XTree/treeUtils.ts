@@ -28,7 +28,7 @@ export function createProxy<T extends NodeType | NodeType[] = NodeType | NodeTyp
     get(target: any, key: PropertyKey, receiver: any) {
       let ret = Reflect.get(target, key, receiver);
       //代理 NodeType 数组其他的忽略
-      if (Array.isArray(ret) && (receiver as NodeType).hasOwnProperty(node_symbol) && key == "children") {
+      if (Array.isArray(ret) && key == "children") {
         return createProxy(ret as T);
       } else if (isObject(ret) && (ret as NodeType).hasOwnProperty(node_symbol)) {
         //代理 NodeType 其他的忽略
