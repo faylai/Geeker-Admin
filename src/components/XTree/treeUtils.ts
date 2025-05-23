@@ -40,9 +40,6 @@ export function createProxy<T extends NodeType | NodeType[] = NodeType | NodeTyp
     set(target: any, p: string | symbol, value: any, receiver: any): boolean {
       traceSetter(p, value, receiver);
       return Reflect.set(target, p, value, receiver);
-    },
-    apply(target: any, thisArg: any, args: any[]): any {
-      return Reflect.apply(target, thisArg, args);
     }
   };
   return new Proxy<T>(obj as T, handler);
@@ -95,4 +92,15 @@ function _downNodeDeepByDeep(node: NodeType[], parentNode: NodeType | null, leve
 export function downNodeDeepByDeep(node: NodeType[], visitor: TreeVisitor) {
   let children: NodeType[] = Array.isArray(node) ? node : [node];
   _downNodeDeepByDeep(children, null, 0, visitor);
+}
+
+/**
+ * 解决内存泄露的问题
+ * @param dom
+ */
+export function clearAllEventListener(dom: HTMLElement) {
+  const new_element = dom.cloneNode(true);
+  if (dom.parentElement) {
+    dom.parentElement.replaceChild(new_element, dom);
+  }
 }
